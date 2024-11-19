@@ -7,14 +7,22 @@ package view.controller;
 import communication.Communication;
 import domain.Grupa;
 import domain.Kurs;
+import domain.RasporedKursa;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import view.constans.Constants;
 import view.coordinator.MainCoordinator;
 import view.form.FrmPretragaGrupa;
@@ -107,6 +115,43 @@ public class PretragaGrupaController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 fillTableGrupa();
+            }
+        });
+        
+        //izvestaj
+        frmPretragaGrupa.getBtnKreirajIzvestajAddActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = frmPretragaGrupa.getTabelaGrupa().getSelectedRow();
+                if(selectedRow == -1){
+                    JOptionPane.showMessageDialog(frmPretragaGrupa, "Sistem ne može da učita grupu polaznika kursa.", "Grupa greška", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frmPretragaGrupa, "Niste odabrali grupu iz tabele", "Grupa greška", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                else{
+                    try {
+                        GrupaTableModel gtm = (GrupaTableModel) frmPretragaGrupa.getTabelaGrupa().getModel();
+                        Grupa g = gtm.getGrupaAt(selectedRow);
+                        JOptionPane.showMessageDialog(frmPretragaGrupa, "Sistem je učitao grupu polaznika kursa");
+
+                        List<RasporedKursa> rasporedKursa = g.getRasporediKurseva();
+                        //slanje parametara preko hashmape
+                        Map<String,Object> parameters = new HashMap<>();
+                        parameters.put("REPORT_PARAMETERS_MAP", rasporedKursa);
+                        JRBeanCollectionDataSource rasporedKursaDataSource = new JRBeanCollectionDataSource(rasporedKursa);
+
+                        parameters.put("rasporediKurseva", rasporedKursaDataSource);
+                        List<Grupa> listaGrupa = new ArrayList<>();
+                        listaGrupa.add(g);
+
+                        JasperPrint jprint1 = JasperFillManager.fillReport("Grupa.jasper", parameters,  new JRBeanCollectionDataSource(listaGrupa));
+                        JasperViewer viewer = new JasperViewer(jprint1, false);
+                        viewer.setVisible(true);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(frmPretragaGrupa, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }            
+                }                
             }
         });
 

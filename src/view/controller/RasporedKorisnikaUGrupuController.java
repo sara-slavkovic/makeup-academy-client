@@ -47,6 +47,7 @@ public class RasporedKorisnikaUGrupuController {
         frmRaspored.setTitle("Raspored korisnika u grupu");
         frmRaspored.getBtnRasporedi().setEnabled(false);
         fillTablePrijava();
+        fillTableGrupa();
     }
 
     private void addActionListener() {
@@ -151,6 +152,11 @@ public class RasporedKorisnikaUGrupuController {
             Logger.getLogger(RasporedKorisnikaUGrupuController.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(frmRaspored, "Greška pri učitvanju prijava", "Greška", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void fillTableGrupa() {
+        GrupaTableModel gtmm = new GrupaTableModel(new ArrayList<>());
+        frmRaspored.getTabelaGrupa().setModel(gtmm);
     }
 
 }

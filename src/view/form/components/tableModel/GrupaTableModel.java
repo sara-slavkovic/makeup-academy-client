@@ -4,9 +4,14 @@
  */
 package view.form.components.tableModel;
 
+import communication.Communication;
 import domain.Grupa;
+import domain.RasporedKursa;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -60,7 +65,28 @@ public class GrupaTableModel extends AbstractTableModel {
     }
     
     public Grupa getGrupaAt(int row){
-        return grupe.get(row);
+        try {
+            Grupa g = grupe.get(row);
+            List<RasporedKursa> sviRasporedi = Communication.getInstance().vratiSveRasporedeKurseva();
+            //RasporedKursaTableModel rkt = (RasporedKursaTableModel) frmGrupa.getTabelaRasporeda().getModel();
+            //frmGrupa.getTabelaKurseva().setModel(rktm);
+            List<RasporedKursa> rasporediZaGrupu = new ArrayList<>();
+            for (RasporedKursa raspored : sviRasporedi) {
+                if (raspored.getGrupa().getIdGrupe() == g.getIdGrupe()) {
+                    //rkt.dodajRaspored(raspored);
+                    rasporediZaGrupu.add(raspored);
+                }
+            }
+            //List<RasporedKursa> rasporediKurseva = Communication.getInstance().
+            //Grupa g = grupe.get(row);
+            g.setRasporediKurseva(rasporediZaGrupu);
+            
+            return g;
+            //return grupe.get(row);
+        } catch (Exception ex) {
+            Logger.getLogger(GrupaTableModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     public List<Grupa> getGrupe() {
